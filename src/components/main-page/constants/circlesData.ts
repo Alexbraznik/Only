@@ -1,4 +1,4 @@
-import { ICirclesData } from "./";
+import { ICirclesData, ISlidersData } from "./";
 import { airplaneList } from "./factsList/airplaneList";
 import { cinemaList } from "./factsList/cinemaList";
 import { foodList } from "./factsList/foodList";
@@ -17,7 +17,7 @@ export const circlesData: ICirclesData[] = [
 ];
 
 // Объединение всех фактов
-export const allFacts = [
+export const allFacts: ISlidersData[] = [
   ...cinemaList,
   ...gameList,
   ...foodList,

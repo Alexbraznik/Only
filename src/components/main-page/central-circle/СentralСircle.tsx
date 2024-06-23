@@ -3,8 +3,16 @@ import { SmallCircles } from "../";
 import styles from "./СentralСircle.module.scss";
 import { useState } from "react";
 
-export function СentralСircle({ minDateRef, maxDateRef }): JSX.Element {
-  const [rotation, setRotation] = useState(0);
+interface ICentralCircleProps {
+  minDateRef: React.RefObject<any>;
+  maxDateRef: React.RefObject<any>;
+}
+
+export function СentralСircle({
+  minDateRef,
+  maxDateRef,
+}: ICentralCircleProps): JSX.Element {
+  const [rotation, setRotation] = useState<number>(0);
 
   const rotateCentralCircle = () => {
     const newRotation = rotation + 60;

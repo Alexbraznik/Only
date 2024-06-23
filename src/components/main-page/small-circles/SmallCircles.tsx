@@ -1,5 +1,4 @@
 import styles from "./SmallCircles.module.scss";
-import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 import { circlesData } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,38 +6,55 @@ import { RootState } from "../store";
 import { setCurrentParentId } from "../store/switchSlice";
 import { setMaxDate, setMinDate } from "../store/dateSlice";
 import { animateDateChange } from "../utils/animationUtils";
+import { useCircleAnimation } from "./useCircleAnimation";
+import { Circle } from "./circle/Circle";
+import { createSelector } from "reselect";
+
+interface ISmallCirclesProps {
+  minDateRef: React.RefObject<any>;
+  maxDateRef: React.RefObject<any>;
+  rotateCentralCircle: () => void;
+  rotation: number;
+}
 
 export function SmallCircles({
   minDateRef,
   maxDateRef,
   rotateCentralCircle,
   rotation,
-}): JSX.Element {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
-
-  const numCircles = 6; // количество кругов
-  const angleIncrement = 360 / numCircles;
-
-  const circlesRefs = useRef<HTMLDivElement[]>([]);
-  const minDate = useSelector((state: RootState) => state.date.minDate);
-  const maxDate = useSelector((state: RootState) => state.date.maxDate);
+}: ISmallCirclesProps) {
+  const [hoveredId, setHoveredId] = useState<number | null>(null); // id при наведении
+  const numCircles: number = 6; // количество кругов
+  const angleIncrement: number = 360 / numCircles; // расстояние между кругами
+  const circlesRefs = useRef<Array<any>>([]); //  ссылка на круги
   const dispatch = useDispatch();
 
-  // Текущий parentId
-  const activeId = useSelector(
-    (state: RootState) => state.switch.currentParentId
+  const selectDate = (state: RootState) => state.date;
+  const selectSwitch = (state: RootState) => state.switch;
+
+  const mySelector = createSelector(
+    [selectDate, selectSwitch],
+    (date, switchState) => ({
+      minDate: date.minDate,
+      maxDate: date.maxDate,
+      currentParentId: switchState.currentParentId,
+      selectedCategory: switchState.selectedCategory,
+      activeId: switchState.currentParentId,
+    })
   );
 
-  const selectedCategory = useSelector(
-    (state: RootState) => state.switch.selectedCategory
-  );
+  const { minDate, maxDate, currentParentId, selectedCategory, activeId } =
+    useSelector(mySelector);
 
+  useCircleAnimation({ currentParentId, hoveredId, circlesRefs }); // функция анимации
+
+  // Хук отправки даты
   useEffect(() => {
     dispatch(setMinDate(selectedCategory));
     dispatch(setMaxDate(selectedCategory));
-  }, [selectedCategory]);
+  }, [selectedCategory, dispatch]);
 
-  // Меняем parentId по клику на кружок
+  // Функция анимации даты и прокрутки
   const handleCircleClick = (circleId: number) => {
     dispatch(setCurrentParentId(circleId));
     animateDateChange(minDateRef, minDate);
@@ -46,55 +62,24 @@ export function SmallCircles({
     rotateCentralCircle();
   };
 
-  useEffect(() => {
-    circlesRefs.current.forEach((circleRef, index) => {
-      const circleId = circlesData[index].id;
-      const isActive = circleId === activeId || circleId === hoveredId;
-      const size = isActive ? 56 : 6;
-      const background = isActive ? "#e5e5e5" : "#303e58";
-
-      gsap.to(circleRef, {
-        width: size,
-        height: size,
-        background,
-        duration: 1,
-      });
-    });
-  }, [activeId, hoveredId]);
-
-  const smallCircles = circlesData.map((circle, index) => {
-    const angle = index * angleIncrement;
-    const rotateTransform = `rotate(${angle}deg)`;
-    const translateTransform = `translate(265px)`;
-
-    const inverseRotateTransform = `rotate(-${angle + rotation}deg)`;
-
-    const circleClassName =
-      circle.id === activeId || circle.id === hoveredId
-        ? `${styles.circle_active} ${"circle_active"}`
-        : `${styles.circle_inactive} ${"circle_inactive"}`;
-
-    return (
-      <div
-        key={circle.id}
-        ref={(el) => {
-          circlesRefs.current[index] = el;
-        }}
-        className={circleClassName}
-        style={{ transform: `${rotateTransform} ${translateTransform}` }}
-        onClick={() => handleCircleClick(circle.id)}
-        onMouseEnter={() => setHoveredId(circle.id)}
-        onMouseLeave={() => setHoveredId(null)}
-      >
-        {(circle.id === activeId || circle.id === hoveredId) && (
-          <div style={{ transform: inverseRotateTransform }}>
-            <span className={`${styles.circle_title}`}>{circle.id}</span>
-            {circle.id === activeId && <p>{circle.title}</p>}
-          </div>
-        )}
-      </div>
-    );
-  });
-
-  return <div>{smallCircles}</div>;
+  return (
+    <div>
+      {circlesData.map((circle, index) => (
+        <Circle
+          key={circle.id}
+          circle={circle}
+          index={index}
+          angleIncrement={angleIncrement}
+          activeId={activeId}
+          hoveredId={hoveredId}
+          currentParentId={currentParentId}
+          rotation={rotation}
+          styles={styles}
+          circlesRefs={circlesRefs}
+          setHoveredId={setHoveredId}
+          handleCircleClick={handleCircleClick}
+        />
+      ))}
+    </div>
+  );
 }

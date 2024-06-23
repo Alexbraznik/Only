@@ -56,7 +56,7 @@
 
     &:nth-child(1) {
       color: $iris;
-      margin-right: 70px; // поправить
+      margin-right: 70px;
     }
     &:nth-child(2) {
       color: $fuschia;
@@ -88,7 +88,7 @@
 }
 
 .slider {
-  padding: 0 40px 50px 80px; // заменить 50 на 104 для экранов высотой выше 1080
+  padding: 0 40px 50px 80px;
 
   .slider_date {
     color: $main-color;
