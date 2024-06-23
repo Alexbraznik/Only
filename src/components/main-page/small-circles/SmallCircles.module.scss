@@ -1,0 +1,36 @@
+@import "../../../constants/styles/variables.scss";
+@import "../../../constants/styles/mixins.scss";
+
+.circle_active {
+  @include flex-center;
+  background-color: #e5e5e5;
+  position: absolute;
+  border: 1px solid #303e58;
+  border-radius: 50%;
+  color: $main-color;
+  cursor: pointer;
+
+  span {
+    font-size: 20px;
+    line-height: 30px;
+  }
+
+  p {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    padding-left: 42px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 30px;
+  }
+}
+
+.circle_inactive {
+  position: absolute;
+  background-color: $main-color;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-left: -2.5px;
+  margin-top: -2.5px;
+}

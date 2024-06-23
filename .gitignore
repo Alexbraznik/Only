@@ -1,0 +1,15 @@
+# Node.js и npm
+node_modules/
+package-lock.json
+
+# Next.js
+.next/
+
+# TypeScript
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+
+# Other
+
+todo.txt
